@@ -1,0 +1,12 @@
+# XcodeGen 生成物，不入库
+*.xcodeproj/
+*.xcworkspace/
+
+# 构建产物
+build/
+Payload/
+*.ipa
+*.xcarchive
+
+# 系统
+.DS_Store
