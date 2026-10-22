@@ -40,7 +40,7 @@ struct StudioTaskLiveActivity: Widget {
                 DynamicIslandExpandedRegion(.bottom) {
                     HStack(spacing: 10) {
                         StatusPill(text: statusText(context),
-                                   tint: tint(for: context.state.status))
+                                   tint: statusTint(for: context.state.status))
                         Spacer()
                         if context.state.status == .waiting && !context.isStale {
                             Button(intent: ApproveTaskIntent(taskId: context.attributes.taskId)) {
@@ -54,15 +54,15 @@ struct StudioTaskLiveActivity: Widget {
                     .padding(.horizontal, 4)
                 }
             } compactLeading: {
-                Image(systemName: icon(for: context.state.status))
-                    .foregroundStyle(tint(for: context.state.status))
+                Image(systemName: statusIcon(for: context.state.status))
+                    .foregroundStyle(statusTint(for: context.state.status))
             } compactTrailing: {
                 Text("\(context.state.stepDone)/\(context.state.stepTotal)")
                     .font(.caption2.monospacedDigit())
-                    .foregroundStyle(tint(for: context.state.status))
+                    .foregroundStyle(statusTint(for: context.state.status))
             } minimal: {
-                Image(systemName: icon(for: context.state.status))
-                    .foregroundStyle(tint(for: context.state.status))
+                Image(systemName: statusIcon(for: context.state.status))
+                    .foregroundStyle(statusTint(for: context.state.status))
             }
             .keylineTint(.orange)
             .widgetURL(URL(string: "\(AppConfig.urlScheme)://task/\(context.attributes.taskId)"))
@@ -91,11 +91,11 @@ private struct LockScreenView: View {
 
             ProgressView(value: Double(context.state.stepDone),
                          total: Double(max(context.state.stepTotal, 1)))
-                .tint(tint(for: context.state.status))
+                .tint(statusTint(for: context.state.status))
 
             HStack(spacing: 12) {
                 StatusPill(text: statusText(context),
-                           tint: tint(for: context.state.status))
+                           tint: statusTint(for: context.state.status))
                 Spacer()
                 Text(context.state.ioText)
                 Text(context.state.tokensText)
@@ -135,7 +135,7 @@ private func statusText(_ context: ActivityViewContext<StudioTaskAttributes>) ->
     }
 }
 
-private func tint(for status: TaskStatus) -> Color {
+private func statusTint(for status: TaskStatus) -> Color {
     switch status {
     case .running: return .orange
     case .waiting: return .yellow
@@ -144,7 +144,7 @@ private func tint(for status: TaskStatus) -> Color {
     }
 }
 
-private func icon(for status: TaskStatus) -> String {
+private func statusIcon(for status: TaskStatus) -> String {
     switch status {
     case .running: return "bolt.horizontal.circle.fill"
     case .waiting: return "hand.raised.circle.fill"

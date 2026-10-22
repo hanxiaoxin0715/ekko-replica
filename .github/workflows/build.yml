@@ -20,24 +20,12 @@ jobs:
         run: xcodegen generate
 
       - name: Show toolchain
-        run: |
-          xcodebuild -version
-          xcodebuild -showsdks | grep -i iphoneos || true
+        run: xcodebuild -version
 
       - name: Archive (no signing)
         run: |
+          set -o pipefail
           xcodebuild archive \
-            -project EkkoLite.xcodeproj \
-            -scheme EkkoLite \
-            -configuration Release \
-            -sdk iphoneos \
-            -destination 'generic/platform=iOS' \
-            -archivePath "$RUNNER_TEMP/EkkoLite.xcarchive" \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGN_ENTITLEMENTS="" \
-            | xcpretty || xcodebuild archive \
             -project EkkoLite.xcodeproj \
             -scheme EkkoLite \
             -configuration Release \
@@ -51,8 +39,13 @@ jobs:
 
       - name: Package IPA
         run: |
-          APP="$RUNNER_TEMP/EkkoLite.xcarchive/Products/Applications/EkkoLite.app"
-          test -d "$APP" || { echo "找不到 EkkoLite.app"; ls -R "$RUNNER_TEMP/EkkoLite.xcarchive/Products"; exit 1; }
+          APP=$(find "$RUNNER_TEMP/EkkoLite.xcarchive/Products/Applications" -maxdepth 1 -name "*.app" | head -1)
+          echo "APP = $APP"
+          if [ -z "$APP" ]; then
+            echo "没找到 .app，输出目录内容："
+            ls -R "$RUNNER_TEMP/EkkoLite.xcarchive/Products" || true
+            exit 1
+          fi
           rm -rf Payload && mkdir -p Payload
           cp -R "$APP" Payload/
           zip -qry EkkoLite-unsigned.ipa Payload
